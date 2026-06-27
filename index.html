@@ -268,6 +268,75 @@ input{font-family:inherit;}
   color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
 
+/* ---------- Início / Métricas Corporais ---------- */
+.cardtitle{font-size:13px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.4px;margin:0 4px 10px;}
+.objbox{background:var(--card2);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:14px;line-height:1.45;color:var(--text);font-weight:500;border-left:3px solid var(--accent);}
+
+.herocard{background:var(--card);border-radius:var(--radius);padding:22px 20px 20px;margin-bottom:14px;}
+.heropill{
+  display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:20px;margin-bottom:16px;
+}
+.herobig{display:flex;align-items:flex-end;gap:8px;line-height:1;}
+.herobig .num{font-size:52px;font-weight:800;letter-spacing:-1.5px;}
+.herobig .unit{font-size:18px;font-weight:700;color:var(--dim);padding-bottom:8px;}
+.herodate{font-size:13px;color:var(--dim);margin-top:6px;}
+.herogauge{margin-top:22px;}
+.heronums{display:flex;margin-bottom:6px;}
+.heronums span{font-size:11px;color:var(--dim2);font-weight:600;text-align:right;padding-right:4px;}
+.herobarwrap{position:relative;}
+.herobar{display:flex;height:9px;border-radius:6px;overflow:hidden;}
+.heromarker{
+  position:absolute;top:50%;width:26px;height:26px;border-radius:50%;
+  border:3px solid var(--card);transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+.herolabels{display:flex;margin-top:10px;}
+.herolabels span{font-size:11px;color:var(--dim);font-weight:600;text-align:center;}
+
+.comparecard{background:var(--card);border-radius:var(--radius);padding:4px 16px;margin-bottom:14px;}
+.comparerow{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--stroke);}
+.comparerow:last-child{border-bottom:none;}
+.compareleft{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--text);}
+.comparedot{width:32px;height:32px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;flex:none;font-size:15px;}
+.comparedelta{font-weight:800;font-size:15px;flex:none;}
+
+.statlist{background:var(--card);border-radius:var(--radius);overflow:hidden;}
+.statrow{display:flex;align-items:center;gap:14px;padding:13px 16px;}
+.statrow:nth-child(even){background:var(--card2);}
+.staticon{width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--dim);flex:none;}
+.statinfo{flex:1;min-width:0;font-size:14px;color:var(--text);font-weight:500;}
+.statright{text-align:right;flex:none;}
+.statvalue{font-size:18px;font-weight:800;white-space:nowrap;}
+.statunit{font-size:12px;font-weight:600;color:var(--dim);margin-left:2px;}
+.statstatus{font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:3px;}
+.sdot{width:6px;height:6px;border-radius:50%;flex:none;}
+
+.plainrow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--stroke);font-size:13.5px;}
+.plainrow:last-child{border-bottom:none;}
+.plabel{color:var(--dim);flex:1;}
+.pvalue{font-weight:700;text-align:right;max-width:58%;}
+
+.callout{background:var(--accent-dim);border-radius:14px;padding:14px 16px;margin:12px 0;}
+.callout .ctitle{font-size:12px;color:var(--dim);font-weight:600;margin-bottom:5px;}
+.callout .cvalue{font-size:21px;font-weight:800;color:var(--accent);}
+
+.macrorow{display:flex;gap:8px;margin:14px 0;}
+.macrobox{flex:1;background:var(--card2);border-radius:12px;padding:13px 8px;text-align:center;}
+.macrobox .mv{font-size:18px;font-weight:800;}
+.macrobox .ml{font-size:11px;color:var(--dim);margin-top:3px;}
+
+.formsection-title{padding:18px 18px 6px;font-size:12.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;}
+.formgroup{padding:0 18px 14px;}
+.formgroup label{display:block;font-size:12px;color:var(--dim);font-weight:600;margin-bottom:6px;}
+.formgroup input,.formgroup select,.formgroup textarea{
+  width:100%;background:var(--card2);border:1px solid var(--stroke);border-radius:12px;
+  padding:12px 14px;color:var(--text);font-size:15px;font-family:inherit;-webkit-appearance:none;
+}
+.formgroup select{appearance:none;}
+.formgroup textarea{resize:vertical;min-height:64px;}
+
 .resttimer{
   display:flex;align-items:center;justify-content:space-between;
   background:var(--card);border-radius:14px;margin:0 18px 16px;padding:12px 16px;
@@ -499,7 +568,19 @@ var ICON={
   play:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 4l13 8-13 8V4z" fill="currentColor"/></svg>',
   home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5M6 10v9a1 1 0 001 1h4v-6h2v6h4a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   edit:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20l1-4.5L16 4.5l3.5 3.5L8.5 19 4 20z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  trash:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-9 0l1 12a1 1 0 001 1h8a1 1 0 001-1l1-12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  trash:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-9 0l1 12a1 1 0 001 1h8a1 1 0 001-1l1-12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  scale:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 16a8 8 0 1116 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 16l3-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r="1.3" fill="currentColor"/></svg>',
+  body:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="2.2" stroke="currentColor" stroke-width="1.6"/><path d="M7 20c0-4 2-7 5-7s5 3 5 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9 13h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  muscle:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 14c0-5 2-9 6-9 3 0 4 2 6 2 2 0 3-1 3 2 0 4-2 5-2 8 0 2-1 4-4 4-5 0-9-3-9-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  lungs:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 4v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 11c-1-3-3-3-5-2-3 1-3 5-2 8 1 2 3 2 4 0l3-3M12 11c1-3 3-3 5-2 3 1 3 5 2 8-1 2-3 2-4 0l-3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  drop:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3c4 5 6 8 6 11a6 6 0 11-12 0c0-3 2-6 6-11z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  flame:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3c2 3-1 4-1 7a3 3 0 106 0c0-1-1-2-1-3 2 1 4 4 4 7a8 8 0 11-16 0c0-4 3-6 4-9 0 2 1 3 2 3 1-2 1-3 2-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  ruler:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="9" width="18" height="6" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M7 9v3M11 9v3M15 9v3M19 9v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  calendar:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M4 10h16M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  moon:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 119.5 4a7 7 0 1010.5 10.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  activity:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2-6 4 12 2-6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  briefcase:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.6"/></svg>',
+  gender:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M8 21v-4a4 4 0 014-4 4 4 0 014 4v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
 };
 
 /* ============== TABBAR ============== */
@@ -589,6 +670,7 @@ function calcMetrics(r){
   var alturaM=num(r.altura)/100, peso=num(r.peso), gordura=num(r.gordura_percent);
   var imc = alturaM>0 ? peso/(alturaM*alturaM) : 0;
   var pesoGordura = peso*gordura/100;
+  var pesoAgua = peso*num(r.agua_percent)/100;
   var massaMagra = peso-pesoGordura;
   var metaGordura = num(r.metaGordura)||15;
   var pesoAlvo = (100-metaGordura)>0 ? massaMagra/(1-metaGordura/100) : 0;
@@ -602,27 +684,59 @@ function calcMetrics(r){
   var proteina = Math.round(peso*2.2);
   var gorduraG = Math.round(peso*0.8);
   var carbo = Math.round(Math.max(0,(kcalDia-proteina*4-gorduraG*9))/4);
-  return {imc:imc,pesoGordura:pesoGordura,massaMagra:massaMagra,pesoAlvo:pesoAlvo,gorduraPerder:gorduraPerder,
+  return {imc:imc,pesoGordura:pesoGordura,pesoAgua:pesoAgua,massaMagra:massaMagra,pesoAlvo:pesoAlvo,gorduraPerder:gorduraPerder,
     kcalDia:kcalDia,deficitSemanal:deficitSemanal,perdaSemanal:perdaSemanal,semanas:semanas,
     proteina:proteina,gorduraG:gorduraG,carbo:carbo};
 }
+function getPrevRecord(date){
+  var prior=getRecords().filter(function(r){ return r.date<date; }).sort(function(a,b){ return b.date.localeCompare(a.date); });
+  return prior[0];
+}
+function getBestWeight(excludeDate){
+  var vals=getRecords().map(function(r){ return num(r.peso); }).filter(function(v){ return v>0; });
+  return vals.length?Math.min.apply(null,vals):0;
+}
 
 /* ---- componentes visuais ---- */
-function gaugeRow(label,value,unit,min,max,zones){
+function gaugeRange(zones){
+  var spans=[]; for(var i=1;i<zones.length-1;i++){ spans.push(zones[i].upto-zones[i-1].upto); }
+  var avg=spans.length?(spans.reduce(function(a,b){return a+b;},0)/spans.length):5;
+  var min=Math.max(0, zones[0].upto-avg);
+  var lastFinite=zones[zones.length-2].upto;
+  var max=lastFinite+avg*1.25;
+  return {min:min,max:max};
+}
+function heroGauge(value,zones){
+  var range=gaugeRange(zones), min=range.min, max=range.max;
   var zone=classifyZone(value,zones);
-  var segHtml=zones.map(function(z,i){
+  var segs=zones.map(function(z,i){
     var prevUpto = i===0?min:zones[i-1].upto;
     var upto=Math.min(z.upto,max);
     var w=Math.max(0,(upto-Math.max(prevUpto,min)));
     var pct=(w/(max-min))*100;
-    var rad = i===0?'4px 0 0 4px':(i===zones.length-1?'0 4px 4px 0':'0');
-    return '<div style="flex:'+pct+' 0 0;background:'+COLORHEX[z.color]+';height:6px;border-radius:'+rad+';"></div>';
+    return {pct:pct,color:z.color,label:z.label,boundary:z.upto};
+  });
+  var numsHtml=segs.map(function(s,i){
+    return i<segs.length-1 ? '<span style="flex:'+s.pct+' 0 0;">'+s.boundary.toFixed(2)+'</span>' : '<span style="flex:'+s.pct+' 0 0;"></span>';
   }).join('');
-  var markerPct=Math.max(1,Math.min(99,((value-min)/(max-min))*100));
-  return '<div class="metricrow">'+
-    '<div class="metricrow-top"><span class="mlabel">'+label+'</span><span class="mbadge" style="color:'+COLORHEX[zone.color]+'"><span class="mdot" style="background:'+COLORHEX[zone.color]+'"></span>'+zone.label+'</span></div>'+
-    '<div class="mvalue">'+value.toFixed(1).replace('.0','')+(unit||'')+'</div>'+
-    '<div class="mgauge"><div class="mgaugebar">'+segHtml+'</div><div class="mmarker" style="left:'+markerPct+'%;background:'+COLORHEX[zone.color]+';"></div></div>'+
+  var barHtml=segs.map(function(s){ return '<div style="flex:'+s.pct+' 0 0;background:'+COLORHEX[s.color]+';"></div>'; }).join('');
+  var labelsHtml=segs.map(function(s){ return '<span style="flex:'+s.pct+' 0 0;">'+s.label+'</span>'; }).join('');
+  var markerPct=Math.max(2,Math.min(98,((value-min)/(max-min))*100));
+  return '<div class="herogauge">'+
+    '<div class="heronums">'+numsHtml+'</div>'+
+    '<div class="herobarwrap"><div class="herobar">'+barHtml+'</div>'+
+      '<div class="heromarker" style="left:'+markerPct+'%;background:'+COLORHEX[zone.color]+';">🙂</div>'+
+    '</div>'+
+    '<div class="herolabels">'+labelsHtml+'</div>'+
+  '</div>';
+}
+function statRow(icon,label,value,unit,status){
+  return '<div class="statrow">'+
+    '<div class="staticon">'+icon+'</div>'+
+    '<div class="statinfo">'+label+'</div>'+
+    '<div class="statright"><div class="statvalue">'+value+(unit?'<span class="statunit">'+unit+'</span>':'')+'</div>'+
+      (status?'<div class="statstatus" style="color:'+COLORHEX[status.color]+'">'+status.label+'<span class="sdot" style="background:'+COLORHEX[status.color]+'"></span></div>':'')+
+    '</div>'+
   '</div>';
 }
 function plainRow(label,value){
@@ -662,35 +776,68 @@ function renderRecordDetail(){
   if(!r){ backToInicioHome(); return ''; }
   var m=calcMetrics(r);
   var sexo=r.sexo||'Masculino';
+  var peso=num(r.peso);
+  var wZones=weightZones(r), wZone=classifyZone(peso,wZones);
+  var imcZone=classifyZone(m.imc,imcZones());
+  var gordZone=classifyZone(num(r.gordura_percent),gorduraZones(sexo));
+  var viscZone=classifyZone(num(r.gordura_visceral),visceralZones());
+  var aguaZone=classifyZone(num(r.agua_percent),aguaZones(sexo));
+  var massaZone=classifyZone(num(r.massa_percent),massaZones(sexo));
 
   var html='<div class="header"><button class="iconbtn" onclick="backToInicioHome()">'+ICON.back+'</button><h1>'+formatDateBR(date)+'</h1>'+
     '<button class="iconbtn accent" onclick="openRecordEditor(\''+date+'\')">'+ICON.edit+'</button></div>';
 
+  /* ---- Hero: peso + gauge ---- */
   html+='<div class="section" style="margin-top:6px;">';
-  html+='<div class="cardtitle">Dados Pessoais</div><div class="card" style="padding:14px 16px;">';
+  html+='<div class="herocard">'+
+    '<div class="heropill" style="background:'+COLORHEX[wZone.color]+'22;color:'+COLORHEX[wZone.color]+';">🙂 '+wZone.label+'</div>'+
+    '<div class="herobig"><span class="num">'+peso.toFixed(2)+'</span><span class="unit">Kg</span></div>'+
+    '<div class="herodate">Registrado em '+formatDateBR(date)+'</div>'+
+    heroGauge(peso,wZones)+
+  '</div></div>';
+
+  /* ---- Comparativo ---- */
+  var prev=getPrevRecord(date);
+  if(prev){
+    var delta=peso-num(prev.peso);
+    var sign=delta>0?'+':'';
+    html+='<div class="section"><div class="comparecard">';
+    html+='<div class="comparerow"><div class="compareleft"><div class="comparedot">🔄</div>Comparado com '+formatDateBR(prev.date)+'</div>'+
+      '<div class="comparedelta" style="color:'+(delta>0?'var(--red)':(delta<0?'var(--green)':'var(--dim)'))+';">'+sign+delta.toFixed(2)+' kg</div></div>';
+    var best=getBestWeight();
+    html+='<div class="comparerow"><div class="compareleft"><div class="comparedot">🏅</div>Menor peso registrado</div>'+
+      '<div class="comparedelta">'+best.toFixed(2)+' kg</div></div>';
+    html+='</div></div>';
+  }
+
+  /* ---- Métricas Corporais ---- */
+  html+='<div class="section"><div class="cardtitle">Métricas Corporais</div><div class="statlist">';
+  html+=statRow(ICON.scale,'Peso',peso.toFixed(2),'kg',wZone);
+  html+=statRow(ICON.scale,'IMC',m.imc.toFixed(1),'',imcZone);
+  html+=statRow(ICON.body,'Gordura',num(r.gordura_percent).toFixed(1),'%',gordZone);
+  html+=statRow(ICON.body,'Peso de Gordura',m.pesoGordura.toFixed(1),'kg',gordZone);
+  html+=statRow(ICON.muscle,'Massa Muscular Esquelética',num(r.massa_percent)?num(r.massa_percent).toFixed(1):'—','%',num(r.massa_percent)?massaZone:null);
+  html+=statRow(ICON.muscle,'Massa Muscular Esquelética',r.massa_kg||'—','kg',num(r.massa_kg)?massaZone:null);
+  html+=statRow(ICON.lungs,'Gordura Visceral',r.gordura_visceral||'—','',num(r.gordura_visceral)?viscZone:null);
+  html+=statRow(ICON.drop,'Água',num(r.agua_percent)?num(r.agua_percent).toFixed(1):'—','%',num(r.agua_percent)?aguaZone:null);
+  html+=statRow(ICON.drop,'Peso da Água',num(r.agua_percent)?m.pesoAgua.toFixed(1):'—','kg',num(r.agua_percent)?aguaZone:null);
+  html+=statRow(ICON.flame,'TMB (Metabolismo)',r.tmb||'—','kcal/dia',null);
+  html+=statRow(ICON.ruler,'Altura',r.altura||'—','cm',null);
+  html+=statRow(ICON.calendar,'Idade',r.idade||'—','anos',null);
+  html+='</div></div>';
+
+  /* ---- Dados Pessoais ---- */
+  html+='<div class="section"><div class="cardtitle">Dados Pessoais</div>';
   if(r.objetivo) html+='<div class="objbox">🎯 '+r.objetivo+'</div>';
-  html+=gaugeRow('Peso',num(r.peso),'kg',Math.max(30,num(r.peso)-25),num(r.peso)+25,weightZones(r));
-  html+=plainRow('Sexo',sexo);
-  html+=plainRow('Altura',(r.altura||'—')+' cm');
-  html+=plainRow('Idade',(r.idade||'—')+' anos');
-  html+=plainRow('Padrão de sono',(r.sono||'—')+' horas');
-  html+=plainRow('Ingestão diária de água',(r.agua_litros||'—')+' litros');
-  html+=plainRow('Atividade física',r.atividade||'—');
-  html+=plainRow('O que faz na maior parte do dia',r.rotina||'—');
+  html+='<div class="statlist">';
+  html+=statRow(ICON.gender,'Sexo',sexo,'',null);
+  html+=statRow(ICON.moon,'Padrão de sono',r.sono||'—','h/noite',null);
+  html+=statRow(ICON.drop,'Ingestão diária de água',r.agua_litros||'—','L',null);
+  html+=statRow(ICON.activity,'Atividade física',r.atividade||'—','',null);
+  html+=statRow(ICON.briefcase,'O que faz na maior parte do dia',r.rotina||'—','',null);
   html+='</div></div>';
 
-  html+='<div class="section">';
-  html+='<div class="cardtitle">Composição Corporal</div><div class="card" style="padding:14px 16px;">';
-  html+=gaugeRow('Percentual de Água',num(r.agua_percent),'%',25,80,aguaZones(sexo));
-  html+=gaugeRow('IMC',m.imc,'',14,38,imcZones());
-  html+=gaugeRow('Gordura Corporal',num(r.gordura_percent),'%',sexo==='Feminino'?8:3,sexo==='Feminino'?48:42,gorduraZones(sexo));
-  html+=plainRow('Peso de Gordura',m.pesoGordura.toFixed(2)+' kg');
-  html+=gaugeRow('Gordura Visceral',num(r.gordura_visceral),'',1,22,visceralZones());
-  html+=gaugeRow('Massa Muscular Esquelética',num(r.massa_percent),'%',sexo==='Feminino'?12:18,sexo==='Feminino'?42:52,massaZones(sexo));
-  html+=plainRow('Massa Muscular Esquelética',(r.massa_kg||'—')+' kg');
-  html+=plainRow('TMB (Taxa Metabólica Basal)',(r.tmb||'—')+' kcal');
-  html+='</div></div>';
-
+  /* ---- Metas e Projeção ---- */
   html+='<div class="section">';
   html+='<div class="cardtitle">Metas e Projeção</div><div class="card" style="padding:14px 16px;">';
   html+=plainRow('Meta de gordura corporal',num(r.metaGordura)+'%');
