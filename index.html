@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>FitTrack — Treino &amp; Cardio</title>
-  <!-- Ícone para iPhone (iOS Home Screen) -->
-<link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FitTrack">
+<meta name="theme-color" content="#121212">
 <style>
 :root{
   --bg:#121212;
@@ -15,8 +19,8 @@
   --text:#FFFFFF;
   --dim:#A1A1A6;
   --dim2:#7A7A7E;
-  --accent:#FF9F0A;
-  --accent-dim:#3A2A0E;
+  --accent:#D71E4A;
+  --accent-dim:#3A0E18;
   --blue:#0A84FF;
   --green:#30D158;
   --amber:#FFD60A;
@@ -100,7 +104,7 @@ input{font-family:inherit;}
   border:2px solid var(--stroke);display:flex;align-items:center;justify-content:center;
   color:transparent;font-size:14px;font-weight:800;transition:all .15s ease;
 }
-.exdonebox.done{background:var(--accent);border-color:var(--accent);color:#1a1200;}
+.exdonebox.done{background:var(--accent);border-color:var(--accent);color:#FFFFFF;}
 
 .bigcard{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
@@ -120,7 +124,7 @@ input{font-family:inherit;}
 
 .btn{
   display:block;width:100%;text-align:center;
-  background:var(--accent);color:#1a1200;
+  background:var(--accent);color:#FFFFFF;
   font-size:16px;font-weight:700;
   border:none;border-radius:14px;padding:15px;cursor:pointer;
 }
@@ -158,7 +162,7 @@ input{font-family:inherit;}
   background:var(--accent-dim);color:var(--accent);font-size:20px;
   display:flex;align-items:center;justify-content:center;font-weight:700;flex:none;
 }
-.blockcard.done .blocknum{background:var(--accent);color:#1a1200;}
+.blockcard.done .blocknum{background:var(--accent);color:#FFFFFF;}
 .blockcard .info{flex:1;}
 .blockcard .info h3{margin:0 0 3px;font-size:16px;font-weight:700;}
 .blockcard .info p{margin:0;font-size:13px;color:var(--dim);}
@@ -206,7 +210,7 @@ input{font-family:inherit;}
 .eqrow{display:flex;align-items:flex-end;gap:5px;height:90px;margin:26px 20px 4px;}
 .eqbar{flex:1;border-radius:4px;background:var(--card2);transition:height .25s ease, background .25s ease;}
 .flash{animation:flashpulse .5s ease;}
-@keyframes flashpulse{0%{box-shadow:0 0 0 0 rgba(255,159,10,0);}30%{box-shadow:inset 0 0 0 5px var(--flashcolor,var(--accent));}100%{box-shadow:0 0 0 0 rgba(255,159,10,0);}}
+@keyframes flashpulse{0%{box-shadow:0 0 0 0 rgba(215,30,74,0);}30%{box-shadow:inset 0 0 0 5px var(--flashcolor,var(--accent));}100%{box-shadow:0 0 0 0 rgba(215,30,74,0);}}
 
 .donewrap{padding:50px 26px;text-align:center;}
 .donewrap .emoji{font-size:54px;margin-bottom:10px;}
@@ -271,7 +275,7 @@ input{font-family:inherit;}
 .resttimer .lbl{font-size:13px;color:var(--dim);font-weight:600;}
 .resttimer .time{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px;}
 .resttimer button{
-  background:var(--accent);color:#1a1200;border:none;border-radius:10px;
+  background:var(--accent);color:#FFFFFF;border:none;border-radius:10px;
   padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;
 }
 
@@ -282,7 +286,7 @@ input{font-family:inherit;}
   flex:none;cursor:pointer;border:2px solid var(--stroke);color:var(--dim);
   transition:all .15s ease;
 }
-.setcircle.done{background:var(--accent);border-color:var(--accent);color:#1a1200;}
+.setcircle.done{background:var(--accent);border-color:var(--accent);color:#FFFFFF;}
 .setfield{
   flex:1;background:var(--card);border-radius:12px;
   display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 0;
@@ -472,7 +476,8 @@ function toast(msg){
 
 /* ============== STATE ============== */
 var state={
-  tab:'treino',
+  tab:'inicio',
+  inicio:{screen:'home',date:null},
   treino:{screen:'home',key:null},
   cardio:{screen:'home',level:null}
 };
@@ -491,12 +496,15 @@ var ICON={
   sound:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   mute:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   pause:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>',
-  play:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 4l13 8-13 8V4z" fill="currentColor"/></svg>'
+  play:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 4l13 8-13 8V4z" fill="currentColor"/></svg>',
+  home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5M6 10v9a1 1 0 001 1h4v-6h2v6h4a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  edit:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20l1-4.5L16 4.5l3.5 3.5L8.5 19 4 20z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  trash:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-9 0l1 12a1 1 0 001 1h8a1 1 0 001-1l1-12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
 
 /* ============== TABBAR ============== */
 function renderTabbar(){
-  var tabs=[{k:'treino',label:'Treino',icon:ICON.dumbbell},{k:'cardio',label:'Cardio',icon:ICON.heart}];
+  var tabs=[{k:'inicio',label:'Início',icon:ICON.home},{k:'treino',label:'Treino',icon:ICON.dumbbell},{k:'cardio',label:'Cardio',icon:ICON.heart}];
   document.getElementById('tabbar').innerHTML = tabs.map(function(t){
     return '<button class="tabitem'+(state.tab===t.k?' active':'')+'" onclick="setTab(\''+t.k+'\')">'+t.icon+'<span>'+t.label+'</span></button>';
   }).join('');
@@ -506,8 +514,291 @@ function renderTabbar(){
 function render(){
   renderTabbar();
   var el=document.getElementById('screen');
-  if(state.tab==='treino') el.innerHTML=renderTreino();
+  if(state.tab==='inicio') el.innerHTML=renderInicio();
+  else if(state.tab==='treino') el.innerHTML=renderTreino();
   else el.innerHTML=renderCardio();
+}
+
+/* ============== INÍCIO (MÉTRICAS CORPORAIS) ============== */
+function pad2(n){ return (n<10?'0':'')+n; }
+function isoDate(d){ d=d||new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function formatDateBR(iso){
+  var p=iso.split('-'); var months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return parseInt(p[2],10)+' de '+months[parseInt(p[1],10)-1]+' de '+p[0];
+}
+function seedRecords(){
+  var seed=[{
+    date:'2026-06-27',
+    objetivo:'Reduzir minha gordura corporal no mínimo até 15% e aumentar massa muscular, focando em um corpo definido, musculoso e proporcional.',
+    sexo:'Masculino', altura:165, idade:26, peso:75.45,
+    sono:7, agua_litros:3, agua_percent:52.6,
+    atividade:'(Musculação + cardio) 6x por semana',
+    rotina:'Trabalho em uma farmácia no caixa, sentado, das 15h às 23h',
+    gordura_percent:26.9, gordura_visceral:12.5, massa_percent:36.1, massa_kg:27.2, tmb:1596,
+    metaGordura:15, tdee:2500, deficit:500
+  }];
+  saveRecords(seed);
+  return seed;
+}
+function getRecords(){
+  try{ var v=localStorage.getItem('ft_body_records'); return v?JSON.parse(v):seedRecords(); }
+  catch(e){ return seedRecords(); }
+}
+function saveRecords(arr){ try{ localStorage.setItem('ft_body_records', JSON.stringify(arr)); }catch(e){} }
+function getRecord(date){ return getRecords().find(function(r){ return r.date===date; }); }
+function upsertRecord(rec, originalDate){
+  var arr=getRecords();
+  if(originalDate){ arr=arr.filter(function(r){ return r.date!==originalDate; }); }
+  arr=arr.filter(function(r){ return r.date!==rec.date; });
+  arr.push(rec);
+  saveRecords(arr);
+}
+function deleteRecord(date){
+  var arr=getRecords().filter(function(r){ return r.date!==date; });
+  saveRecords(arr);
+}
+function defaultRecordData(){
+  return {date:isoDate(),objetivo:'',sexo:'Masculino',altura:'',idade:'',peso:'',sono:'',agua_litros:'',agua_percent:'',
+    atividade:'',rotina:'',gordura_percent:'',gordura_visceral:'',massa_percent:'',massa_kg:'',tmb:'',
+    metaGordura:15,tdee:'',deficit:500};
+}
+function num(v){ var n=parseFloat(v); return isNaN(n)?0:n; }
+
+/* ---- classificação de status (Baixo/Saudável/Alto/Obeso/Excelente) ---- */
+function classifyZone(value,zones,min,max){
+  for(var i=0;i<zones.length;i++){ if(value<=zones[i].upto) return zones[i]; }
+  return zones[zones.length-1];
+}
+function imcZones(){ return [{upto:18.5,color:'blue',label:'Baixo'},{upto:25,color:'green',label:'Saudável'},{upto:30,color:'amber',label:'Alto'},{upto:Infinity,color:'red',label:'Obeso'}]; }
+function gorduraZones(sexo){
+  if(sexo==='Feminino') return [{upto:21,color:'blue',label:'Baixo'},{upto:32,color:'green',label:'Saudável'},{upto:40,color:'amber',label:'Alto'},{upto:Infinity,color:'red',label:'Obeso'}];
+  return [{upto:14,color:'blue',label:'Baixo'},{upto:25,color:'green',label:'Saudável'},{upto:32,color:'amber',label:'Alto'},{upto:Infinity,color:'red',label:'Obeso'}];
+}
+function visceralZones(){ return [{upto:9,color:'green',label:'Saudável'},{upto:14,color:'amber',label:'Alto'},{upto:Infinity,color:'red',label:'Obeso'}]; }
+function aguaZones(sexo){
+  if(sexo==='Feminino') return [{upto:45,color:'blue',label:'Baixo'},{upto:60,color:'green',label:'Saudável'},{upto:Infinity,color:'amber',label:'Alto'}];
+  return [{upto:55,color:'blue',label:'Baixo'},{upto:65,color:'green',label:'Saudável'},{upto:Infinity,color:'amber',label:'Alto'}];
+}
+function massaZones(sexo){
+  if(sexo==='Feminino') return [{upto:24,color:'blue',label:'Baixo'},{upto:30,color:'green',label:'Saudável'},{upto:Infinity,color:'green',label:'Excelente'}];
+  return [{upto:33,color:'blue',label:'Baixo'},{upto:39,color:'green',label:'Saudável'},{upto:Infinity,color:'green',label:'Excelente'}];
+}
+
+/* ---- cálculos derivados (espelha a planilha do usuário) ---- */
+function calcMetrics(r){
+  var alturaM=num(r.altura)/100, peso=num(r.peso), gordura=num(r.gordura_percent);
+  var imc = alturaM>0 ? peso/(alturaM*alturaM) : 0;
+  var pesoGordura = peso*gordura/100;
+  var massaMagra = peso-pesoGordura;
+  var metaGordura = num(r.metaGordura)||15;
+  var pesoAlvo = (100-metaGordura)>0 ? massaMagra/(1-metaGordura/100) : 0;
+  var pesoGorduraAlvo = pesoAlvo*metaGordura/100;
+  var gorduraPerder = Math.max(0, pesoGordura-pesoGorduraAlvo);
+  var tdee=num(r.tdee), deficit=num(r.deficit);
+  var kcalDia = Math.max(0, tdee-deficit);
+  var deficitSemanal = deficit*7;
+  var perdaSemanal = deficitSemanal/7700;
+  var semanas = perdaSemanal>0 ? gorduraPerder/perdaSemanal : 0;
+  var proteina = Math.round(peso*2.2);
+  var gorduraG = Math.round(peso*0.8);
+  var carbo = Math.round(Math.max(0,(kcalDia-proteina*4-gorduraG*9))/4);
+  return {imc:imc,pesoGordura:pesoGordura,massaMagra:massaMagra,pesoAlvo:pesoAlvo,gorduraPerder:gorduraPerder,
+    kcalDia:kcalDia,deficitSemanal:deficitSemanal,perdaSemanal:perdaSemanal,semanas:semanas,
+    proteina:proteina,gorduraG:gorduraG,carbo:carbo};
+}
+
+/* ---- componentes visuais ---- */
+function gaugeRow(label,value,unit,min,max,zones){
+  var zone=classifyZone(value,zones);
+  var segHtml=zones.map(function(z,i){
+    var prevUpto = i===0?min:zones[i-1].upto;
+    var upto=Math.min(z.upto,max);
+    var w=Math.max(0,(upto-Math.max(prevUpto,min)));
+    var pct=(w/(max-min))*100;
+    var rad = i===0?'4px 0 0 4px':(i===zones.length-1?'0 4px 4px 0':'0');
+    return '<div style="flex:'+pct+' 0 0;background:'+COLORHEX[z.color]+';height:6px;border-radius:'+rad+';"></div>';
+  }).join('');
+  var markerPct=Math.max(1,Math.min(99,((value-min)/(max-min))*100));
+  return '<div class="metricrow">'+
+    '<div class="metricrow-top"><span class="mlabel">'+label+'</span><span class="mbadge" style="color:'+COLORHEX[zone.color]+'"><span class="mdot" style="background:'+COLORHEX[zone.color]+'"></span>'+zone.label+'</span></div>'+
+    '<div class="mvalue">'+value.toFixed(1).replace('.0','')+(unit||'')+'</div>'+
+    '<div class="mgauge"><div class="mgaugebar">'+segHtml+'</div><div class="mmarker" style="left:'+markerPct+'%;background:'+COLORHEX[zone.color]+';"></div></div>'+
+  '</div>';
+}
+function plainRow(label,value){
+  return '<div class="plainrow"><span class="plabel">'+label+'</span><span class="pvalue">'+value+'</span></div>';
+}
+
+/* ---- screens ---- */
+function renderInicio(){
+  if(state.inicio.screen==='detail') return renderRecordDetail();
+  return renderInicioHome();
+}
+function renderInicioHome(){
+  var records=getRecords().slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var html='<div class="header"><div class="side"></div><h1>Início</h1><div class="side right"></div></div>';
+  html+='<div class="page-title"><h1>Minhas Métricas</h1><p>Composição corporal por data de registro</p></div>';
+  html+='<div class="section"><button class="btn" onclick="openRecordEditor(null)">+ Novo Registro</button></div>';
+  html+='<div class="section">';
+  if(records.length===0){
+    html+='<p style="color:var(--dim);font-size:14px;text-align:center;padding:20px 0;">Nenhum registro ainda. Toque em "+ Novo Registro" para começar.</p>';
+  }
+  records.forEach(function(r){
+    var m=calcMetrics(r);
+    var zone=classifyZone(m.imc,imcZones());
+    html+='<div class="bigcard" onclick="openRecordDetail(\''+r.date+'\')">'+
+      '<div class="info"><h3>'+formatDateBR(r.date)+'</h3><p>'+(r.peso||'—')+'kg · IMC '+m.imc.toFixed(1)+' · <span style="color:'+COLORHEX[zone.color]+';font-weight:700;">'+zone.label+'</span></p></div>'+
+      '<div class="chev">'+ICON.chev+'</div>'+
+    '</div>';
+  });
+  html+='</div>';
+  return html;
+}
+function openRecordDetail(date){ state.inicio={screen:'detail',date:date}; render(); }
+function backToInicioHome(){ state.inicio.screen='home'; render(); }
+
+function renderRecordDetail(){
+  var date=state.inicio.date, r=getRecord(date);
+  if(!r){ backToInicioHome(); return ''; }
+  var m=calcMetrics(r);
+  var sexo=r.sexo||'Masculino';
+
+  var html='<div class="header"><button class="iconbtn" onclick="backToInicioHome()">'+ICON.back+'</button><h1>'+formatDateBR(date)+'</h1>'+
+    '<button class="iconbtn accent" onclick="openRecordEditor(\''+date+'\')">'+ICON.edit+'</button></div>';
+
+  html+='<div class="section" style="margin-top:6px;">';
+  html+='<div class="cardtitle">Dados Pessoais</div><div class="card" style="padding:14px 16px;">';
+  if(r.objetivo) html+='<div class="objbox">🎯 '+r.objetivo+'</div>';
+  html+=gaugeRow('Peso',num(r.peso),'kg',Math.max(30,num(r.peso)-25),num(r.peso)+25,weightZones(r));
+  html+=plainRow('Sexo',sexo);
+  html+=plainRow('Altura',(r.altura||'—')+' cm');
+  html+=plainRow('Idade',(r.idade||'—')+' anos');
+  html+=plainRow('Padrão de sono',(r.sono||'—')+' horas');
+  html+=plainRow('Ingestão diária de água',(r.agua_litros||'—')+' litros');
+  html+=plainRow('Atividade física',r.atividade||'—');
+  html+=plainRow('O que faz na maior parte do dia',r.rotina||'—');
+  html+='</div></div>';
+
+  html+='<div class="section">';
+  html+='<div class="cardtitle">Composição Corporal</div><div class="card" style="padding:14px 16px;">';
+  html+=gaugeRow('Percentual de Água',num(r.agua_percent),'%',25,80,aguaZones(sexo));
+  html+=gaugeRow('IMC',m.imc,'',14,38,imcZones());
+  html+=gaugeRow('Gordura Corporal',num(r.gordura_percent),'%',sexo==='Feminino'?8:3,sexo==='Feminino'?48:42,gorduraZones(sexo));
+  html+=plainRow('Peso de Gordura',m.pesoGordura.toFixed(2)+' kg');
+  html+=gaugeRow('Gordura Visceral',num(r.gordura_visceral),'',1,22,visceralZones());
+  html+=gaugeRow('Massa Muscular Esquelética',num(r.massa_percent),'%',sexo==='Feminino'?12:18,sexo==='Feminino'?42:52,massaZones(sexo));
+  html+=plainRow('Massa Muscular Esquelética',(r.massa_kg||'—')+' kg');
+  html+=plainRow('TMB (Taxa Metabólica Basal)',(r.tmb||'—')+' kcal');
+  html+='</div></div>';
+
+  html+='<div class="section">';
+  html+='<div class="cardtitle">Metas e Projeção</div><div class="card" style="padding:14px 16px;">';
+  html+=plainRow('Meta de gordura corporal',num(r.metaGordura)+'%');
+  html+=plainRow('Meta de peso',m.pesoAlvo.toFixed(1)+' kg');
+  html+='<div class="callout"><div class="ctitle">Quanto preciso perder de gordura</div><div class="cvalue">'+m.gorduraPerder.toFixed(2)+' kg</div></div>';
+  html+=plainRow('Gasto calórico total diário (TDEE)',num(r.tdee)+' kcal');
+  html+=plainRow('Déficit calórico para emagrecer',num(r.deficit)+' kcal/dia');
+  html+=plainRow('Quantas KCAL/dia',m.kcalDia+' kcal');
+  html+=plainRow('Déficit semanal',m.deficitSemanal+' kcal');
+  html+=plainRow('Perda de gordura por semana',m.perdaSemanal.toFixed(2)+' kg');
+  html+='<div class="macrorow">'+
+    '<div class="macrobox"><div class="mv">'+m.proteina+'g</div><div class="ml">Proteínas</div></div>'+
+    '<div class="macrobox"><div class="mv">'+m.gorduraG+'g</div><div class="ml">Gorduras</div></div>'+
+    '<div class="macrobox"><div class="mv">'+m.carbo+'g</div><div class="ml">Carboidratos</div></div>'+
+  '</div>';
+  var tempoTxt;
+  if(m.gorduraPerder<=0.05){ tempoTxt='Você já está na sua meta de gordura corporal! 🎉'; }
+  else if(m.perdaSemanal<=0){ tempoTxt='Defina um déficit calórico para calcular o prazo.'; }
+  else { var meses=m.semanas/4.345; tempoTxt='≈ '+Math.round(m.semanas)+' semanas (aproximadamente '+Math.round(meses)+' meses), seguindo esse ritmo de forma linear e constante.'; }
+  html+='<div class="callout"><div class="ctitle">Seguindo esse padrão, em quanto tempo chego ao meu objetivo?</div><div class="cvalue" style="font-size:15px;line-height:1.4;">'+tempoTxt+'</div></div>';
+  html+='</div></div>';
+  return html;
+}
+function weightZones(r){
+  var alturaM=num(r.altura)/100;
+  if(alturaM<=0) return imcZones();
+  return imcZones().map(function(z){ return {upto: z.upto===Infinity?Infinity:z.upto*alturaM*alturaM, color:z.color, label:z.label}; });
+}
+
+/* ---- editor (criar / editar registro) ---- */
+var recordEditState=null;
+function openRecordEditor(date){
+  var data = date ? Object.assign({}, getRecord(date)) : defaultRecordData();
+  recordEditState={original:date, data:data};
+  document.getElementById('modalRoot').innerHTML=recordEditorMarkup();
+  requestAnimationFrame(function(){
+    document.getElementById('ov').classList.add('show');
+    document.getElementById('sheet').classList.add('show');
+  });
+}
+function reField(name,value){
+  recordEditState.data[name]=value;
+}
+function recordEditorMarkup(){
+  var d=recordEditState.data;
+  var v=function(k){ return d[k]===undefined||d[k]===null?'':d[k]; };
+  return ''+
+  '<div class="overlay" id="ov" onclick="modalCloseGeneric()"></div>'+
+  '<div class="sheet" id="sheet" onclick="event.stopPropagation()">'+
+    '<div class="sheethandle"><span></span></div>'+
+    '<div class="sheetheader"><button class="cancel" onclick="modalCloseGeneric()">Cancelar</button><div class="ttl">'+(recordEditState.original?'Editar Registro':'Novo Registro')+'</div><button class="save" onclick="recordSave()">Salvar</button></div>'+
+
+    '<div class="formgroup"><label>Data do registro</label><input type="date" value="'+v('date')+'" oninput="reField(\'date\',this.value)"></div>'+
+
+    '<div class="formsection-title">Dados Pessoais</div>'+
+    '<div class="formgroup"><label>Objetivo</label><textarea oninput="reField(\'objetivo\',this.value)">'+v('objetivo')+'</textarea></div>'+
+    '<div class="formgroup"><label>Sexo</label><select oninput="reField(\'sexo\',this.value)">'+
+      '<option'+(v('sexo')==='Masculino'?' selected':'')+'>Masculino</option>'+
+      '<option'+(v('sexo')==='Feminino'?' selected':'')+'>Feminino</option>'+
+    '</select></div>'+
+    '<div class="formgroup"><label>Altura (cm)</label><input type="number" inputmode="decimal" value="'+v('altura')+'" oninput="reField(\'altura\',this.value)"></div>'+
+    '<div class="formgroup"><label>Idade</label><input type="number" inputmode="numeric" value="'+v('idade')+'" oninput="reField(\'idade\',this.value)"></div>'+
+    '<div class="formgroup"><label>Peso (kg)</label><input type="number" step="0.1" inputmode="decimal" value="'+v('peso')+'" oninput="reField(\'peso\',this.value)"></div>'+
+    '<div class="formgroup"><label>Padrão de sono (horas)</label><input type="number" step="0.5" inputmode="decimal" value="'+v('sono')+'" oninput="reField(\'sono\',this.value)"></div>'+
+    '<div class="formgroup"><label>Ingestão diária de água (litros)</label><input type="number" step="0.1" inputmode="decimal" value="'+v('agua_litros')+'" oninput="reField(\'agua_litros\',this.value)"></div>'+
+    '<div class="formgroup"><label>Atividade física</label><input type="text" value="'+v('atividade')+'" oninput="reField(\'atividade\',this.value)"></div>'+
+    '<div class="formgroup"><label>O que faz na maior parte do dia</label><textarea oninput="reField(\'rotina\',this.value)">'+v('rotina')+'</textarea></div>'+
+
+    '<div class="formsection-title">Composição Corporal</div>'+
+    '<div class="formgroup"><label>Percentual de Água (%)</label><input type="number" step="0.1" inputmode="decimal" value="'+v('agua_percent')+'" oninput="reField(\'agua_percent\',this.value)"></div>'+
+    '<div class="formgroup"><label>Gordura Corporal (%)</label><input type="number" step="0.1" inputmode="decimal" value="'+v('gordura_percent')+'" oninput="reField(\'gordura_percent\',this.value)"></div>'+
+    '<div class="formgroup"><label>Gordura Visceral</label><input type="number" step="0.1" inputmode="decimal" value="'+v('gordura_visceral')+'" oninput="reField(\'gordura_visceral\',this.value)"></div>'+
+    '<div class="formgroup"><label>Massa Muscular Esquelética (%)</label><input type="number" step="0.1" inputmode="decimal" value="'+v('massa_percent')+'" oninput="reField(\'massa_percent\',this.value)"></div>'+
+    '<div class="formgroup"><label>Massa Muscular Esquelética (Kg)</label><input type="number" step="0.1" inputmode="decimal" value="'+v('massa_kg')+'" oninput="reField(\'massa_kg\',this.value)"></div>'+
+    '<div class="formgroup"><label>TMB — Taxa Metabólica Basal (kcal)</label><input type="number" inputmode="numeric" value="'+v('tmb')+'" oninput="reField(\'tmb\',this.value)"></div>'+
+
+    '<div class="formsection-title">Metas</div>'+
+    '<div class="formgroup"><label>Meta de gordura corporal (%)</label><input type="number" step="0.5" inputmode="decimal" value="'+v('metaGordura')+'" oninput="reField(\'metaGordura\',this.value)"></div>'+
+    '<div class="formgroup"><label>Gasto calórico total diário — TDEE (kcal)</label><input type="number" inputmode="numeric" value="'+v('tdee')+'" oninput="reField(\'tdee\',this.value)"></div>'+
+    '<div class="formgroup"><label>Déficit calórico para emagrecer (kcal/dia)</label><input type="number" inputmode="numeric" value="'+v('deficit')+'" oninput="reField(\'deficit\',this.value)"></div>'+
+
+    (recordEditState.original ? '<div class="formgroup"><button class="btn ghost" style="width:100%;border:1px solid var(--stroke);" onclick="recordDeleteConfirm()">'+ICON.trash+' Excluir este registro</button></div>' : '')+
+  '</div>';
+}
+function recordSave(){
+  var d=recordEditState.data;
+  if(!d.date){ toast('Escolha uma data válida'); return; }
+  upsertRecord(d, recordEditState.original);
+  var savedDate=d.date;
+  modalCloseGeneric();
+  toast('Registro salvo!');
+  state.inicio={screen:'detail',date:savedDate};
+  render();
+}
+function recordDeleteConfirm(){
+  if(!recordEditState || !recordEditState.original) return;
+  deleteRecord(recordEditState.original);
+  modalCloseGeneric();
+  toast('Registro excluído');
+  state.inicio={screen:'home',date:null};
+  render();
+}
+function modalCloseGeneric(){
+  var ov=document.getElementById('ov'), sh=document.getElementById('sheet');
+  if(ov) ov.classList.remove('show');
+  if(sh) sh.classList.remove('show');
+  setTimeout(function(){ document.getElementById('modalRoot').innerHTML=''; },220);
+  recordEditState=null;
 }
 
 /* ============== TREINO TAB ============== */
