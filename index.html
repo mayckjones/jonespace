@@ -620,15 +620,30 @@ function seedRecords(){
   var seed=[{
     date:'2026-06-27',
     objetivo:'Reduzir minha gordura corporal no mínimo até 15% e aumentar massa muscular, focando em um corpo definido, musculoso e proporcional.',
-    sexo:'Masculino', altura:165, idade:26, peso:75.45,
+    sexo:'Masculino', altura:165, idade:26, peso:74.8,
     sono:7, agua_litros:3, agua_percent:52.6,
     atividade:'(Musculação + cardio) 6x por semana',
     rotina:'Trabalho em uma farmácia no caixa, sentado, das 15h às 23h',
-    gordura_percent:26.9, gordura_visceral:12.5, massa_percent:36.1, massa_kg:27.2, tmb:1596,
+    gordura_percent:27.6, gordura_visceral:11, massa_percent:36.4, massa_kg:27.23, tmb:1724,
     metaGordura:15, tdee:2500, deficit:500
   }];
   saveRecords(seed);
   return seed;
+}
+var SEED_VERSION=2;
+function ensureSeedMigration(){
+  try{
+    var sv=parseInt(localStorage.getItem('ft_seed_version')||'0',10);
+    if(sv>=SEED_VERSION) return;
+    var arr=getRecords();
+    var rec=arr.find(function(r){ return r.date==='2026-06-27'; });
+    if(rec){
+      rec.peso=74.8; rec.gordura_percent=27.6; rec.gordura_visceral=11;
+      rec.massa_percent=36.4; rec.massa_kg=27.23; rec.tmb=1724;
+      saveRecords(arr);
+    }
+    localStorage.setItem('ft_seed_version', String(SEED_VERSION));
+  }catch(e){}
 }
 function getRecords(){
   try{ var v=localStorage.getItem('ft_body_records'); return v?JSON.parse(v):seedRecords(); }
@@ -877,7 +892,7 @@ function renderRecordDetail(){
   var tempoTxt;
   if(m.gorduraPerder<=0.05){ tempoTxt='Você já está na sua meta de gordura corporal! 🎉'; }
   else if(m.perdaSemanal<=0){ tempoTxt='Defina um déficit calórico para calcular o prazo.'; }
-  else { var meses=m.semanas/4.345; tempoTxt='≈ '+Math.round(m.semanas)+' semanas (aproximadamente '+Math.round(meses)+' meses), seguindo esse ritmo de forma linear e constante.'; }
+  else { var meses=m.semanas/4.345; tempoTxt='≈ '+Math.round(m.semanas)+' semanas (~'+Math.round(meses)+' meses)'; }
   html+='<div class="callout"><div class="ctitle">Seguindo esse padrão, em quanto tempo chego ao meu objetivo?</div><div class="cvalue" style="font-size:15px;line-height:1.4;">'+tempoTxt+'</div></div>';
   html+='</div></div>';
   return html;
@@ -1291,6 +1306,7 @@ function renderHiitDone(){
 }
 
 /* ============== INIT ============== */
+ensureSeedMigration();
 render();
 </script>
 </body>
