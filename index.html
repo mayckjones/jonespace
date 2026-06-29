@@ -227,7 +227,7 @@ input{font-family:inherit;}
 .sheet{
   position:absolute;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;
   background:var(--bg);border-radius:22px 22px 0 0;
-  max-height:92vh;overflow-y:auto;
+  max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);
   padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));
   pointer-events:auto;
@@ -235,7 +235,7 @@ input{font-family:inherit;}
 .sheet.show{transform:translateY(0);}
 .sheethandle{display:flex;justify-content:center;padding:8px 0 2px;}
 .sheethandle span{width:36px;height:5px;border-radius:3px;background:var(--stroke);display:block;}
-.sheetheader{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 14px;}
+.sheetheader{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 14px;position:sticky;top:0;background:var(--bg);z-index:2;}
 .sheetheader button{background:none;border:none;font-size:16px;cursor:pointer;}
 .sheetheader .cancel{color:var(--dim);}
 .sheetheader .save{color:var(--accent);font-weight:700;}
@@ -618,28 +618,42 @@ function formatDateBR(iso){
 }
 function seedRecords(){
   var seed=[{
-    date:'2026-06-27',
+    date:'2026-06-25',
     objetivo:'Reduzir minha gordura corporal no mínimo até 15% e aumentar massa muscular, focando em um corpo definido, musculoso e proporcional.',
     sexo:'Masculino', altura:165, idade:26, peso:74.8,
     sono:7, agua_litros:3, agua_percent:52.6,
     atividade:'(Musculação + cardio) 6x por semana',
     rotina:'Trabalho em uma farmácia no caixa, sentado, das 15h às 23h',
     gordura_percent:27.6, gordura_visceral:11, massa_percent:36.4, massa_kg:27.23, tmb:1724,
-    metaGordura:15, tdee:2500, deficit:500
+    metaGordura:15, tdee:2500, deficit:500,
+    metaPeso:63.7, gorduraPerderKg:11.09, kcalDia:2000, deficitSemanalKcal:3500, perdaSemanalKg:0.45,
+    macroProteina:165, macroGordura:60, macroCarbo:200, tempoEstimado:'≈ 24 semanas (~6 meses)'
   }];
   saveRecords(seed);
   return seed;
 }
-var SEED_VERSION=2;
+var SEED_VERSION=4;
 function ensureSeedMigration(){
   try{
     var sv=parseInt(localStorage.getItem('ft_seed_version')||'0',10);
     if(sv>=SEED_VERSION) return;
     var arr=getRecords();
-    var rec=arr.find(function(r){ return r.date==='2026-06-27'; });
-    if(rec){
+    var idx=arr.findIndex(function(r){ return r.date==='2026-06-27'||r.date==='2026-06-25'; });
+    if(idx>-1){
+      arr=arr.filter(function(r,i){ return i===idx || r.date!=='2026-06-25'; });
+      var rec=arr[idx];
+      rec.date='2026-06-25';
       rec.peso=74.8; rec.gordura_percent=27.6; rec.gordura_visceral=11;
       rec.massa_percent=36.4; rec.massa_kg=27.23; rec.tmb=1724;
+      if(!rec.metaPeso) rec.metaPeso=63.7;
+      if(!rec.gorduraPerderKg) rec.gorduraPerderKg=11.09;
+      if(!rec.kcalDia) rec.kcalDia=2000;
+      if(!rec.deficitSemanalKcal) rec.deficitSemanalKcal=3500;
+      if(!rec.perdaSemanalKg) rec.perdaSemanalKg=0.45;
+      if(!rec.macroProteina) rec.macroProteina=165;
+      if(!rec.macroGordura) rec.macroGordura=60;
+      if(!rec.macroCarbo) rec.macroCarbo=200;
+      if(!rec.tempoEstimado) rec.tempoEstimado='≈ 24 semanas (~6 meses)';
       saveRecords(arr);
     }
     localStorage.setItem('ft_seed_version', String(SEED_VERSION));
@@ -665,9 +679,18 @@ function deleteRecord(date){
 function defaultRecordData(){
   return {date:isoDate(),objetivo:'',sexo:'Masculino',altura:'',idade:'',peso:'',sono:'',agua_litros:'',agua_percent:'',
     atividade:'',rotina:'',gordura_percent:'',gordura_visceral:'',massa_percent:'',massa_kg:'',tmb:'',
-    metaGordura:15,tdee:'',deficit:500};
+    metaGordura:15,tdee:'',deficit:500,
+    metaPeso:'',gorduraPerderKg:'',kcalDia:'',deficitSemanalKcal:'',perdaSemanalKg:'',
+    macroProteina:'',macroGordura:'',macroCarbo:'',tempoEstimado:''};
 }
 function num(v){ var n=parseFloat(v); return isNaN(n)?0:n; }
+function pick(v,fallback){ return (v!==undefined && v!==null && v!=='') ? num(v) : fallback; }
+function computeDefaultTempo(perderKg,perdaSemanalKg){
+  if(perderKg<=0.05) return 'Você já está na sua meta de gordura corporal! 🎉';
+  if(perdaSemanalKg<=0) return 'Defina um déficit calórico para calcular o prazo.';
+  var semanas=perderKg/perdaSemanalKg, meses=semanas/4.345;
+  return '≈ '+Math.round(semanas)+' semanas (~'+Math.round(meses)+' meses)';
+}
 
 /* ---- classificação de status (Baixo/Saudável/Alto/Obeso/Excelente) ---- */
 function classifyZone(value,zones,min,max){
@@ -858,8 +881,6 @@ function renderRecordDetail(){
   html+=statRow(ICON.drop,'Água',num(r.agua_percent)?num(r.agua_percent).toFixed(1):'—','%',num(r.agua_percent)?aguaZone:null);
   html+=statRow(ICON.drop,'Peso da Água',num(r.agua_percent)?m.pesoAgua.toFixed(1):'—','kg',num(r.agua_percent)?aguaZone:null);
   html+=statRow(ICON.flame,'TMB (Metabolismo)',r.tmb||'—','kcal/dia',null);
-  html+=statRow(ICON.ruler,'Altura',r.altura||'—','cm',null);
-  html+=statRow(ICON.calendar,'Idade',r.idade||'—','anos',null);
   html+='</div></div>';
 
   /* ---- Dados Pessoais ---- */
@@ -867,6 +888,8 @@ function renderRecordDetail(){
   if(r.objetivo) html+='<div class="objbox">🎯 '+r.objetivo+'</div>';
   html+='<div class="statlist">';
   html+=statRow(ICON.gender,'Sexo',sexo,'',null);
+  html+=statRow(ICON.calendar,'Idade',r.idade||'—','anos',null);
+  html+=statRow(ICON.ruler,'Altura',r.altura||'—','cm',null);
   html+=statRow(ICON.moon,'Padrão de sono',r.sono||'—','h/noite',null);
   html+=statRow(ICON.drop,'Ingestão diária de água',r.agua_litros||'—','L',null);
   html+=textRow(ICON.activity,'Atividade física',r.atividade);
@@ -876,23 +899,28 @@ function renderRecordDetail(){
   /* ---- Metas e Projeção ---- */
   html+='<div class="section">';
   html+='<div class="cardtitle">Metas e Projeção</div><div class="card" style="padding:14px 16px;">';
+  var metaPesoVal=pick(r.metaPeso,m.pesoAlvo);
+  var perderVal=pick(r.gorduraPerderKg,m.gorduraPerder);
+  var kcalDiaVal=pick(r.kcalDia,m.kcalDia);
+  var deficitSemanalVal=pick(r.deficitSemanalKcal,m.deficitSemanal);
+  var perdaSemanalVal=pick(r.perdaSemanalKg,m.perdaSemanal);
+  var proteinaVal=pick(r.macroProteina,m.proteina);
+  var gorduraGVal=pick(r.macroGordura,m.gorduraG);
+  var carboVal=pick(r.macroCarbo,m.carbo);
+  var tempoTxt=(r.tempoEstimado && (''+r.tempoEstimado).trim()) ? r.tempoEstimado : computeDefaultTempo(perderVal,perdaSemanalVal);
   html+=plainRow('Meta de gordura corporal',num(r.metaGordura)+'%');
-  html+=plainRow('Meta de peso',m.pesoAlvo.toFixed(1)+' kg');
-  html+='<div class="callout"><div class="ctitle">Quanto preciso perder de gordura</div><div class="cvalue">'+m.gorduraPerder.toFixed(2)+' kg</div></div>';
+  html+=plainRow('Meta de peso',metaPesoVal.toFixed(1)+' kg');
+  html+='<div class="callout"><div class="ctitle">Quanto preciso perder de gordura</div><div class="cvalue">'+perderVal.toFixed(2)+' kg</div></div>';
   html+=plainRow('Gasto calórico total diário (TDEE)',num(r.tdee)+' kcal');
   html+=plainRow('Déficit calórico para emagrecer',num(r.deficit)+' kcal/dia');
-  html+=plainRow('Quantas KCAL/dia',m.kcalDia+' kcal');
-  html+=plainRow('Déficit semanal',m.deficitSemanal+' kcal');
-  html+=plainRow('Perda de gordura por semana',m.perdaSemanal.toFixed(2)+' kg');
+  html+=plainRow('Quantas KCAL/dia',kcalDiaVal+' kcal');
+  html+=plainRow('Déficit semanal',deficitSemanalVal+' kcal');
+  html+=plainRow('Perda de gordura por semana',perdaSemanalVal.toFixed(2)+' kg');
   html+='<div class="macrorow">'+
-    '<div class="macrobox"><div class="mv">'+m.proteina+'g</div><div class="ml">Proteínas</div></div>'+
-    '<div class="macrobox"><div class="mv">'+m.gorduraG+'g</div><div class="ml">Gorduras</div></div>'+
-    '<div class="macrobox"><div class="mv">'+m.carbo+'g</div><div class="ml">Carboidratos</div></div>'+
+    '<div class="macrobox"><div class="mv">'+proteinaVal+'g</div><div class="ml">Proteínas</div></div>'+
+    '<div class="macrobox"><div class="mv">'+gorduraGVal+'g</div><div class="ml">Gorduras</div></div>'+
+    '<div class="macrobox"><div class="mv">'+carboVal+'g</div><div class="ml">Carboidratos</div></div>'+
   '</div>';
-  var tempoTxt;
-  if(m.gorduraPerder<=0.05){ tempoTxt='Você já está na sua meta de gordura corporal! 🎉'; }
-  else if(m.perdaSemanal<=0){ tempoTxt='Defina um déficit calórico para calcular o prazo.'; }
-  else { var meses=m.semanas/4.345; tempoTxt='≈ '+Math.round(m.semanas)+' semanas (~'+Math.round(meses)+' meses)'; }
   html+='<div class="callout"><div class="ctitle">Seguindo esse padrão, em quanto tempo chego ao meu objetivo?</div><div class="cvalue" style="font-size:15px;line-height:1.4;">'+tempoTxt+'</div></div>';
   html+='</div></div>';
   return html;
@@ -954,6 +982,20 @@ function recordEditorMarkup(){
     '<div class="formgroup"><label>Meta de gordura corporal (%)</label><input type="number" step="0.5" inputmode="decimal" value="'+v('metaGordura')+'" oninput="reField(\'metaGordura\',this.value)"></div>'+
     '<div class="formgroup"><label>Gasto calórico total diário — TDEE (kcal)</label><input type="number" inputmode="numeric" value="'+v('tdee')+'" oninput="reField(\'tdee\',this.value)"></div>'+
     '<div class="formgroup"><label>Déficit calórico para emagrecer (kcal/dia)</label><input type="number" inputmode="numeric" value="'+v('deficit')+'" oninput="reField(\'deficit\',this.value)"></div>'+
+    (function(){
+      var sugg=calcMetrics(d);
+      return ''+
+      '<div class="formgroup" style="padding-top:4px;"><label style="color:var(--dim2);font-style:italic;">Os campos abaixo já vêm calculados, mas você pode digitar o valor que quiser:</label></div>'+
+      '<div class="formgroup"><label>Meta de peso (kg)</label><input type="number" step="0.1" inputmode="decimal" value="'+(v('metaPeso')!==''?v('metaPeso'):sugg.pesoAlvo.toFixed(1))+'" oninput="reField(\'metaPeso\',this.value)"></div>'+
+      '<div class="formgroup"><label>Quanto preciso perder de gordura (kg)</label><input type="number" step="0.1" inputmode="decimal" value="'+(v('gorduraPerderKg')!==''?v('gorduraPerderKg'):sugg.gorduraPerder.toFixed(2))+'" oninput="reField(\'gorduraPerderKg\',this.value)"></div>'+
+      '<div class="formgroup"><label>Quantas KCAL/dia</label><input type="number" inputmode="numeric" value="'+(v('kcalDia')!==''?v('kcalDia'):sugg.kcalDia)+'" oninput="reField(\'kcalDia\',this.value)"></div>'+
+      '<div class="formgroup"><label>Déficit semanal (kcal)</label><input type="number" inputmode="numeric" value="'+(v('deficitSemanalKcal')!==''?v('deficitSemanalKcal'):sugg.deficitSemanal)+'" oninput="reField(\'deficitSemanalKcal\',this.value)"></div>'+
+      '<div class="formgroup"><label>Perda de gordura por semana (kg)</label><input type="number" step="0.01" inputmode="decimal" value="'+(v('perdaSemanalKg')!==''?v('perdaSemanalKg'):sugg.perdaSemanal.toFixed(2))+'" oninput="reField(\'perdaSemanalKg\',this.value)"></div>'+
+      '<div class="formgroup"><label>Proteínas (g)</label><input type="number" inputmode="numeric" value="'+(v('macroProteina')!==''?v('macroProteina'):sugg.proteina)+'" oninput="reField(\'macroProteina\',this.value)"></div>'+
+      '<div class="formgroup"><label>Gorduras (g)</label><input type="number" inputmode="numeric" value="'+(v('macroGordura')!==''?v('macroGordura'):sugg.gorduraG)+'" oninput="reField(\'macroGordura\',this.value)"></div>'+
+      '<div class="formgroup"><label>Carboidratos (g)</label><input type="number" inputmode="numeric" value="'+(v('macroCarbo')!==''?v('macroCarbo'):sugg.carbo)+'" oninput="reField(\'macroCarbo\',this.value)"></div>'+
+      '<div class="formgroup"><label>Prazo estimado (texto livre)</label><textarea oninput="reField(\'tempoEstimado\',this.value)">'+(v('tempoEstimado')!==''?v('tempoEstimado'):computeDefaultTempo(sugg.gorduraPerder,sugg.perdaSemanal))+'</textarea></div>';
+    })()+
 
     (recordEditState.original ? '<div class="formgroup"><button class="btn ghost" style="width:100%;border:1px solid var(--stroke);" onclick="recordDeleteConfirm()">'+ICON.trash+' Excluir este registro</button></div>' : '')+
   '</div>';
