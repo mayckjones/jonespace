@@ -54,6 +54,18 @@ input{font-family:inherit;}
   -webkit-overflow-scrolling:touch;
 }
 .safe-top{height:env(safe-area-inset-top,0px);}
+.top-banner{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:10px 16px 6px;
+}
+.top-banner img{
+  display:block;
+  width:min(100%, 196px);
+  max-width:196px;
+  height:auto;
+}
 
 /* ---------- Header ---------- */
 .header{
@@ -394,6 +406,9 @@ input{font-family:inherit;}
 <body>
 <div id="app">
   <div class="safe-top"></div>
+  <div class="top-banner">
+    <img src="jone.png" alt="jone">
+  </div>
   <div id="screen"></div>
   <nav id="tabbar"></nav>
 </div>
