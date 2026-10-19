@@ -221,6 +221,29 @@ input{font-family:inherit;}
 .speedwrap .next{font-size:14px;color:var(--dim);margin-top:6px;}
 .eqrow{display:flex;align-items:flex-end;gap:5px;height:90px;margin:26px 20px 4px;}
 .eqbar{flex:1;border-radius:4px;background:var(--card2);transition:height .25s ease, background .25s ease;}
+.hiitrun{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+.ringcenter{touch-action:manipulation;}
+.speedwrap .total{font-size:13px;color:var(--dim2);margin-top:8px;font-variant-numeric:tabular-nums;}
+.hiittip{margin:14px 4px 0;font-size:12.5px;color:var(--dim);text-align:center;line-height:1.4;}
+/* contagem dos últimos 10s em tela cheia (não bloqueia toques) */
+.hiitcd{
+  position:fixed;inset:0;z-index:40;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);
+  background:rgba(10,10,10,.86);box-shadow:inset 0 0 0 8px var(--cdcolor,var(--accent));
+  opacity:0;transition:opacity .2s ease;
+}
+.hiitcd.show{opacity:1;}
+.hiitcd.hot{animation:cdpulse 1s ease infinite;}
+.hiitcd.change{background:var(--cdcolor,var(--accent));box-shadow:none;}
+.hiitcd .cdlbl{font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--cdcolor,var(--accent));}
+.hiitcd.change .cdlbl,.hiitcd.change .cdnum,.hiitcd.change .cdnext{color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.35);}
+.hiitcd .cdnum{font-size:min(44vw,240px);font-weight:900;line-height:1;letter-spacing:-4px;font-variant-numeric:tabular-nums;color:#fff;margin:6px 0;}
+.hiitcd.change .cdnum{font-size:min(24vw,130px);letter-spacing:-2px;}
+.hiitcd .cdnum.pop{animation:cdpop .35s ease;}
+.hiitcd .cdnext{font-size:20px;font-weight:700;color:var(--text);text-align:center;}
+@keyframes cdpop{0%{transform:scale(1.25);opacity:.4;}100%{transform:scale(1);opacity:1;}}
+@keyframes cdpulse{0%,100%{box-shadow:inset 0 0 0 8px var(--cdcolor,var(--accent));}50%{box-shadow:inset 0 0 0 22px var(--cdcolor,var(--accent));}}
 .flash{animation:flashpulse .5s ease;}
 @keyframes flashpulse{0%{box-shadow:0 0 0 0 rgba(215,30,74,0);}30%{box-shadow:inset 0 0 0 5px var(--flashcolor,var(--accent));}100%{box-shadow:0 0 0 0 rgba(215,30,74,0);}}
 
@@ -524,7 +547,8 @@ function isHiitDone(){ try{ return localStorage.getItem('ft_hiit_'+todayStr())==
 var audioCtx=null, hiitMuted=false;
 function ensureAudio(){
   if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
-  if(audioCtx && audioCtx.state==='suspended'){ try{ audioCtx.resume(); }catch(e){} }
+  // iOS deixa o contexto 'suspended' ou 'interrupted' depois de bloquear/trocar de app
+  if(audioCtx && audioCtx.state!=='running'){ try{ audioCtx.resume(); }catch(e){} }
   return audioCtx;
 }
 document.addEventListener('touchstart', ensureAudio, {once:true,passive:true});
@@ -546,6 +570,41 @@ function beep(freq,dur,vol){
 }
 function tickBeep(){ beep(700,90,0.25); }
 function doubleBeep(){ beep(880,130); setTimeout(function(){beep(1180,150);},160); }
+function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} } // iPhone ignora; Android vibra
+
+/* Voz (pt-BR). No iOS a 1ª fala precisa sair de um toque — por isso startHiit já fala. */
+var ptVoice=null;
+function pickVoice(){
+  try{
+    var vs=window.speechSynthesis.getVoices();
+    ptVoice=vs.filter(function(v){return /^pt[-_]BR/i.test(v.lang);})[0]||vs.filter(function(v){return /^pt/i.test(v.lang);})[0]||null;
+  }catch(e){}
+}
+if('speechSynthesis' in window){ pickVoice(); try{ window.speechSynthesis.onvoiceschanged=pickVoice; }catch(e){} }
+function say(text){
+  if(hiitMuted || !('speechSynthesis' in window)) return;
+  try{
+    var ss=window.speechSynthesis;
+    if(ss.speaking||ss.pending) ss.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang='pt-BR'; if(ptVoice) u.voice=ptVoice; u.rate=1.1; u.volume=1;
+    ss.speak(u);
+  }catch(e){}
+}
+function stopSpeech(){ try{ if('speechSynthesis' in window) window.speechSynthesis.cancel(); }catch(e){} }
+
+/* Mantém a tela acesa durante o HIIT (Safari iOS 16.4+) */
+var wakeLock=null;
+function requestWakeLock(){
+  try{
+    if(navigator.wakeLock && !wakeLock){
+      navigator.wakeLock.request('screen').then(function(l){
+        wakeLock=l; l.addEventListener('release',function(){ wakeLock=null; });
+      }).catch(function(){});
+    }
+  }catch(e){}
+}
+function releaseWakeLock(){ try{ if(wakeLock) wakeLock.release(); }catch(e){} wakeLock=null; }
 
 /* ============== UTIL ============== */
 function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60),r=s%60; return (m<10?'0':'')+m+':'+(r<10?'0':'')+r; }
@@ -575,7 +634,12 @@ var state={
   cardio:{screen:'home',level:null}
 };
 var runner={ interval:null, data:null };
-function clearRunner(){ if(runner.interval){ clearInterval(runner.interval); runner.interval=null; } }
+function clearRunner(){
+  if(runner.interval){ clearInterval(runner.interval); runner.interval=null; }
+  var d=runner.data;
+  if(d && d.startedAt){ d.elapsedMs+=Date.now()-d.startedAt; d.startedAt=null; }
+  releaseWakeLock();
+}
 function setTab(t){ clearRunner(); state.tab=t; render(); }
 
 /* ============== ICONS ============== */
@@ -1243,69 +1307,118 @@ function renderHiitSummary(){
     html+='<tr><td>'+row[0]+'\' - '+row[1]+'\'</td><td>'+row[2]+' km/h</td><td class="eff-'+row[4]+'">'+row[3]+'</td></tr>';
   });
   html+='</tbody></table>';
-  html+='<button class="btn" onclick="startHiit('+lv+')">Vamos lá!</button></div>';
+  html+='<button class="btn" onclick="startHiit('+lv+')">Vamos lá!</button>';
+  html+='<p class="hiittip">Nos últimos 10 segundos de cada etapa você recebe aviso por voz, bipes e contagem na tela. No iPhone, deixe o modo silencioso desligado e o volume alto.</p></div>';
   return html;
 }
 
 /* ---- HIIT runner ---- */
+/* O tempo vem do relógio (Date.now), não da contagem de ticks: no iPhone o
+   setInterval atrasa ou para quando a tela bloqueia, e assim nunca perde a hora. */
+var HIIT_WARN=10; // segundos de aviso antes de cada troca
+var NUM_PT={1:'um',2:'dois',3:'três',4:'quatro',5:'cinco'};
+function speedSpeech(sp,short){ var t=String(sp).replace('-',' a '); return short?t:t+' quilômetros por hora'; }
+
 function startHiit(lv){
   ensureAudio();
   clearRunner();
   state.cardio.screen='hiitRun';
   state.cardio.level=lv;
   var segs=LEVELS[lv];
-  runner.data={segIndex:0,segRemaining:(segs[0][1]-segs[0][0])*60,total:600,running:true,segments:segs};
-  render();
+  runner.data={segments:segs,elapsedMs:0,startedAt:null,segIndex:0,cued:{},changeUntil:0,lastCd:null};
+  say('Vamos lá! Comece a '+speedSpeech(segs[0][2])+'.');
   hiitTick();
+  render();
 }
+function hiitElapsed(d){ return d.elapsedMs+(d.startedAt?Date.now()-d.startedAt:0); }
+function hiitState(d){
+  var t=hiitElapsed(d)/1000, segs=d.segments, i=0;
+  while(i<segs.length-1 && t>=segs[i][1]*60) i++;
+  return {
+    t:t, segIndex:i,
+    segRemaining:Math.max(0,segs[i][1]*60-t),
+    totalRemaining:Math.max(0,segs[segs.length-1][1]*60-t)
+  };
+}
+// inicia/retoma o timer
 function hiitTick(){
+  var d=runner.data; if(!d) return;
   if(runner.interval) clearInterval(runner.interval);
-  runner.interval=setInterval(function(){
-    var d=runner.data;
-    d.segRemaining--; d.total--;
-
-    if(d.segRemaining>0 && d.segRemaining<=5){ tickBeep(); }
-
-    if(d.segRemaining<=0){
-      if(d.segIndex < d.segments.length-1){
-        d.segIndex++;
-        var seg=d.segments[d.segIndex];
-        d.segRemaining=(seg[1]-seg[0])*60;
-        doubleBeep();
-        flashRunner(seg[4]);
-      }
-    }
-    if(d.total<=0){
-      clearRunner();
-      setHiitDone();
-      doubleBeep();
-      state.cardio.screen='hiitDone';
-      render();
-      return;
-    }
-    updateHiitDom();
-  },1000);
+  if(!d.startedAt) d.startedAt=Date.now();
+  requestWakeLock();
+  runner.interval=setInterval(hiitStep,250);
 }
+function hiitStep(){
+  var d=runner.data; if(!d) return;
+  var s=hiitState(d);
+  if(s.totalRemaining<=0){ finishHiit(); return; }
+
+  if(s.segIndex!==d.segIndex){
+    d.segIndex=s.segIndex;
+    var seg=d.segments[s.segIndex];
+    // só anuncia se a troca acabou de acontecer (não ao voltar do segundo plano bem depois)
+    if(s.t-seg[0]*60<3) announceChange(seg);
+  }
+  var sec=Math.ceil(s.segRemaining);
+  if(sec>=1 && sec<=HIIT_WARN){
+    var key=s.segIndex+':'+sec;
+    if(!d.cued[key]){ d.cued[key]=1; countdownCue(sec,s.segIndex); }
+  }
+  updateHiitDom(s);
+}
+function countdownCue(sec,idx){
+  var d=runner.data, last=idx>=d.segments.length-1, next=last?null:d.segments[idx+1];
+  if(sec===HIIT_WARN){
+    beep(660,220,0.35); buzz(120);
+    say(last ? 'Dez segundos para terminar!' : 'Dez segundos. Próxima: '+speedSpeech(next[2],true)+', '+next[3].toLowerCase()+'.');
+  } else if(sec<=5){
+    beep(sec<=3?1040:880,110,0.4); buzz(50);
+    say(NUM_PT[sec]);
+  } else {
+    tickBeep();
+  }
+}
+function announceChange(seg){
+  doubleBeep(); setTimeout(function(){ beep(1400,260,0.4); },340);
+  buzz([150,80,150]);
+  say('Agora! '+speedSpeech(seg[2])+'. '+seg[3]+'.');
+  flashRunner(seg[4]);
+  runner.data.changeUntil=Date.now()+2500;
+}
+function finishHiit(){
+  clearRunner();
+  setHiitDone();
+  doubleBeep(); setTimeout(doubleBeep,380);
+  buzz([200,100,200,100,300]);
+  say('Parabéns! HIIT concluído.');
+  state.cardio.screen='hiitDone';
+  render();
+}
+// ao voltar para o app (desbloqueou a tela / trocou de app) ressincroniza na hora
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible' && runner.interval){ ensureAudio(); requestWakeLock(); hiitStep(); }
+});
 function flashRunner(colorKey){
   var el=document.getElementById('hiitCard');
   if(el){ el.style.setProperty('--flashcolor',COLORHEX[colorKey]||'#FF9F0A'); el.classList.add('flash'); setTimeout(function(){ if(el)el.classList.remove('flash'); },520); }
 }
 function ringCircumference(){ return 2*Math.PI*100; }
-function updateHiitDom(){
-  var d=runner.data; var seg=d.segments[d.segIndex];
+function updateHiitDom(s){
+  var d=runner.data; if(!d) return;
+  s=s||hiitState(d);
+  var seg=d.segments[s.segIndex];
   var segDur=(seg[1]-seg[0])*60;
-  var frac=d.segRemaining/segDur;
+  var frac=s.segRemaining/segDur;
   var c=ringCircumference();
+  var sec=Math.ceil(s.segRemaining);
+  var last=s.segIndex>=d.segments.length-1;
+  var n=last?null:d.segments[s.segIndex+1];
 
-  var t1=document.getElementById('hiitTime'); if(t1) t1.textContent=fmt(d.segRemaining);
+  var t1=document.getElementById('hiitTime'); if(t1) t1.textContent=fmt(sec);
   var sp=document.getElementById('hiitSpeed'); if(sp) sp.textContent=seg[2]+' km/h';
+  var tt=document.getElementById('hiitTotal'); if(tt) tt.textContent='Total restante '+fmt(Math.ceil(s.totalRemaining));
   var nx=document.getElementById('hiitNext');
-  if(nx){
-    if(d.segIndex < d.segments.length-1){
-      var n=d.segments[d.segIndex+1];
-      nx.textContent='próxima '+n[2]+' km/h';
-    } else { nx.textContent='última etapa'; }
-  }
+  if(nx) nx.textContent = last ? 'última etapa' : 'próxima '+n[2]+' km/h';
   var ring=document.getElementById('ringProgress');
   if(ring){
     ring.setAttribute('stroke-dasharray', c);
@@ -1315,17 +1428,37 @@ function updateHiitDom(){
   for(var i=0;i<d.segments.length;i++){
     var bar=document.getElementById('eqbar'+i);
     if(!bar) continue;
-    if(i<d.segIndex){ bar.style.background=COLORHEX[d.segments[i][4]]; bar.style.opacity='0.35'; }
-    else if(i===d.segIndex){ bar.style.background=COLORHEX[seg[4]]; bar.style.opacity='1'; }
+    if(i<s.segIndex){ bar.style.background=COLORHEX[d.segments[i][4]]; bar.style.opacity='0.35'; }
+    else if(i===s.segIndex){ bar.style.background=COLORHEX[seg[4]]; bar.style.opacity='1'; }
     else { bar.style.background='var(--card2)'; bar.style.opacity='1'; }
   }
+
+  // contagem em tela cheia
+  var cd=document.getElementById('hiitCd'); if(!cd) return;
+  var lbl=document.getElementById('hiitCdLbl'), num=document.getElementById('hiitCdNum'), nxt=document.getElementById('hiitCdNext');
+  var mode=null, numText='';
+  if(runner.interval && d.changeUntil>Date.now()){
+    mode='change'; cd.style.setProperty('--cdcolor',COLORHEX[seg[4]]);
+    lbl.textContent='Troca agora!'; numText=seg[2]; nxt.textContent='km/h · '+seg[3];
+  } else if(runner.interval && sec>=1 && sec<=HIIT_WARN){
+    mode='count'; cd.style.setProperty('--cdcolor',last?'var(--accent)':COLORHEX[n[4]]);
+    lbl.textContent=last?'Termina em':'Troca em'; numText=String(sec);
+    nxt.textContent=last?'Último esforço!':'Próxima: '+n[2]+' km/h · '+n[3];
+  }
+  cd.className='hiitcd'+(mode?' show':'')+(mode==='change'?' change':'')+(mode==='count'&&sec<=3?' hot':'');
+  if(mode && d.lastCd!==numText){
+    num.textContent=numText;
+    num.classList.remove('pop'); void num.offsetWidth; num.classList.add('pop');
+  }
+  d.lastCd=mode?numText:null;
 }
 function renderHiitRun(){
-  var d=runner.data; var seg=d.segments[d.segIndex];
+  var d=runner.data; var s=hiitState(d); var seg=d.segments[s.segIndex];
   var segDur=(seg[1]-seg[0])*60;
-  var frac=d.segRemaining/segDur;
+  var frac=s.segRemaining/segDur;
   var c=ringCircumference();
-  var nextLabel = (d.segIndex < d.segments.length-1) ? ('próxima '+d.segments[d.segIndex+1][2]+' km/h') : 'última etapa';
+  var nextLabel = (s.segIndex < d.segments.length-1) ? ('próxima '+d.segments[s.segIndex+1][2]+' km/h') : 'última etapa';
+  d.lastCd=null;
 
   var html='<div class="header"><button class="iconbtn" onclick="exitHiit()">'+ICON.close+'</button><h1>HIT 10\' - Nível '+state.cardio.level+'</h1>'+
     '<button class="iconbtn accent" onclick="toggleMute()" id="muteBtn">'+(hiitMuted?ICON.mute:ICON.sound)+'</button></div>';
@@ -1335,27 +1468,30 @@ function renderHiitRun(){
       '<circle class="ringtrack" cx="110" cy="110" r="100"></circle>'+
       '<circle class="ringprogress" id="ringProgress" cx="110" cy="110" r="100" stroke="'+COLORHEX[seg[4]]+'" stroke-dasharray="'+c+'" stroke-dashoffset="'+(c*(1-frac))+'"></circle>'+
     '</svg>'+
-    '<div class="ringcenter" onclick="toggleHiitPause()"><div class="time" id="hiitTime">'+fmt(d.segRemaining)+'</div><div class="ctrlicon">'+(runner.interval?ICON.pause:ICON.play)+'</div></div>'+
+    '<div class="ringcenter" onclick="toggleHiitPause()"><div class="time" id="hiitTime">'+fmt(Math.ceil(s.segRemaining))+'</div><div class="ctrlicon">'+(runner.interval?ICON.pause:ICON.play)+'</div></div>'+
   '</div>';
-  html+='<div class="speedwrap"><div class="lbl">Velocidade atual</div><div class="val" id="hiitSpeed">'+seg[2]+' km/h</div><div class="next" id="hiitNext">'+nextLabel+'</div></div>';
+  html+='<div class="speedwrap"><div class="lbl">Velocidade atual</div><div class="val" id="hiitSpeed">'+seg[2]+' km/h</div><div class="next" id="hiitNext">'+nextLabel+'</div>'+
+    '<div class="total" id="hiitTotal">Total restante '+fmt(Math.ceil(s.totalRemaining))+'</div></div>';
   html+='<div class="eqrow">';
-  d.segments.forEach(function(s,i){
-    var h=BARHEIGHT[s[3]]||50;
-    var bg = i<d.segIndex ? COLORHEX[s[4]] : (i===d.segIndex ? COLORHEX[s[4]] : 'var(--card2)');
-    var op = i<d.segIndex ? '0.35' : '1';
+  d.segments.forEach(function(sg,i){
+    var h=BARHEIGHT[sg[3]]||50;
+    var bg = i<=s.segIndex ? COLORHEX[sg[4]] : 'var(--card2)';
+    var op = i<s.segIndex ? '0.35' : '1';
     html+='<div class="eqbar" id="eqbar'+i+'" style="height:'+h+'%;background:'+bg+';opacity:'+op+';"></div>';
   });
   html+='</div>';
   html+='</div>';
+  html+='<div class="hiitcd" id="hiitCd"><div class="cdlbl" id="hiitCdLbl"></div><div class="cdnum" id="hiitCdNum"></div><div class="cdnext" id="hiitCdNext"></div></div>';
+  setTimeout(function(){ updateHiitDom(); },0);
   return html;
 }
 function toggleHiitPause(){
-  if(runner.interval){ clearInterval(runner.interval); runner.interval=null; }
-  else { hiitTick(); }
+  if(runner.interval){ clearRunner(); stopSpeech(); }
+  else { ensureAudio(); hiitTick(); }
   render();
 }
-function toggleMute(){ hiitMuted=!hiitMuted; render(); }
-function exitHiit(){ clearRunner(); state.cardio.screen='home'; render(); }
+function toggleMute(){ hiitMuted=!hiitMuted; if(hiitMuted) stopSpeech(); render(); }
+function exitHiit(){ clearRunner(); stopSpeech(); state.cardio.screen='home'; render(); }
 function renderHiitDone(){
   return '<div class="header"><div class="side"></div><h1>HIIT</h1><div class="side right"></div></div>'+
   '<div class="donewrap"><div class="emoji">🔥</div><h2>HIIT concluído!</h2><p>Você terminou os 10 minutos de intervalado. Bom trabalho!</p>'+
